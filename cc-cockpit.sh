@@ -14,7 +14,6 @@ week_used=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage | numb
 week_reset=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at | numbers? // empty' 2>/dev/null)
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage | numbers? // empty' 2>/dev/null)
 exceeds=$(echo "$input" | jq -r '.exceeds_200k_tokens // false' 2>/dev/null)
-model=$(echo "$input" | jq -r '.model.display_name // empty' 2>/dev/null)
 
 format_reset_time()     { [ -n "$1" ] && TZ="Asia/Tokyo" date -r "$1" "+%-H:%M" 2>/dev/null || echo ""; }
 format_reset_datetime() { [ -n "$1" ] && TZ="Asia/Tokyo" date -r "$1" "+%-m/%-d %-H:%M" 2>/dev/null || echo ""; }
@@ -47,26 +46,23 @@ gauge_bar() {
 
 parts=""
 
-# モデル名
-[ -n "$model" ] && parts="${model}  "
-
 # 5h ゲージ
 if [ -n "$five_used" ]; then
   five_time=$(format_reset_time "$five_reset")
-  gauge=$(gauge_bar "$five_used" 8)
+  gauge=$(gauge_bar "$five_used" 5)
   [ -n "$five_time" ] && parts="${parts}5h:${gauge}(${five_time})  " || parts="${parts}5h:${gauge}  "
 fi
 
 # 7d ゲージ（常時表示）
 if [ -n "$week_used" ]; then
   week_dt=$(format_reset_datetime "$week_reset")
-  gauge=$(gauge_bar "$week_used" 8)
+  gauge=$(gauge_bar "$week_used" 5)
   [ -n "$week_dt" ] && parts="${parts}7d:${gauge}(${week_dt})  " || parts="${parts}7d:${gauge}  "
 fi
 
 # コンテキスト使用率ゲージ
 if [ -n "$used_pct" ]; then
-  gauge=$(gauge_bar "$used_pct" 8)
+  gauge=$(gauge_bar "$used_pct" 5)
   parts="${parts}ctx:${gauge}  "
 fi
 
