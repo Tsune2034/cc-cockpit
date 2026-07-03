@@ -47,11 +47,8 @@ gauge_bar() {
 
 parts=""
 
-# プランラベル
-parts="MAX  "
-
 # モデル名
-[ -n "$model" ] && parts="${parts}${model}  "
+[ -n "$model" ] && parts="${model}  "
 
 # 5h ゲージ
 if [ -n "$five_used" ]; then
